@@ -21,27 +21,23 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package voter;
 
-import org.voltdb.InProcessVoltDBServer;
-import org.voltdb.client.Client;
+//
+// Accepts a vote, enforcing business logic: make sure the vote is for a valid
+// contestant and that the voter (phone number of the caller) is not above the
+// number of allowed votes.
+//
 
-public class DebugClient {
+package debugandtest;
 
-    public static void main(String[] args) throws Exception {
+import org.voltdb.VoltProcedure;
 
-        InProcessVoltDBServer volt = new InProcessVoltDBServer();
-        volt.runDDLFromPath("./ddl.sql");
-        volt.start();
+public class ProcA extends VoltProcedure {
 
-        volt.loadRow("contestants", 1, "Elvis");
-        volt.loadRow("area_code_state", 617, "MA");
+    public long run(long partitionkey) {
 
-        Client client = volt.getClient();
+    	try { Thread.sleep(10); } catch (InterruptedException e) {}
 
-        client.callProcedure("Vote", 6175551111L, 1, 2);
-
-        client.close();
-        volt.shutdown();
+        return 0;
     }
 }
