@@ -21,13 +21,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-//
-// Accepts a vote, enforcing business logic: make sure the vote is for a valid
-// contestant and that the voter (phone number of the caller) is not above the
-// number of allowed votes.
-//
-
 package debugandtest;
 
 import org.voltdb.SQLStmt;
@@ -36,21 +29,21 @@ import org.voltdb.VoltProcedure;
 public class BuggyProc extends VoltProcedure {
 
 	final SQLStmt insert =
-			new SQLStmt("insert into demo values (?, ?);");
+			new SQLStmt("insert into demo values (?, ?, ?);");
 
     public long run() {
 
     	// success, but will be rolled back
-    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 1, "foo");
-    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 2, "bar");
+    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 1, 1, "foo");
+    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 2, 2, "bar");
     	voltExecuteSQL();
 
     	// expectation fail
-    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(2), 3, "far");
+    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(2), 3, 3, "far");
     	voltExecuteSQL();
 
     	// try to divide by zero
-    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 4 / 0, "boo");
+    	voltQueueSQL(insert, EXPECT_SCALAR_MATCH(1), 4 / 0, 4, "boo");
     	voltExecuteSQL();
 
     	// user abort

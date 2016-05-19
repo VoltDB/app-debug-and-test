@@ -24,26 +24,48 @@
 package debugandtest;
 
 import org.voltdb.InProcessVoltDBServer;
+import org.voltdb.VoltTable;
 import org.voltdb.client.Client;
-import org.voltdb.client.ProcCallException;
+import org.voltdb.client.ClientResponse;
 
-public class BuggyWorkload {
+import junit.framework.TestCase;
 
-	public static void main(String[] args) throws Exception {
+public class UnitTestVoltDB extends TestCase {
+
+	public void testProcedureReturn() throws Exception {
 		InProcessVoltDBServer volt = new InProcessVoltDBServer();
 		volt.start();
 
         volt.runDDLFromPath("./ddl.sql");
 
+        // prime the database with two rows, one with an even value
+        // and one with an odd value
+        volt.loadRow("demo", 1, 1, "foo");
+        volt.loadRow("demo", 4, 4, "bar");
+
         Client client = volt.getClient();
 
-        try {
-        	client.callProcedure("BuggyProc");
-        }
-        catch (ProcCallException e) {
-        	e.printStackTrace();
-        }
+        // increment all even rows
+        ClientResponse response = client.callProcedure("@AdHoc",
+        		"UPDATE demo SET othernum = othernum + 1 " +
+        		"  WHERE MOD(othernum, 2) = 0;");
+        assertEquals(response.getStatus(), ClientResponse.SUCCESS);
+        assertEquals(response.getResults().length, 1);
+        assertEquals(response.getResults()[0].asScalarLong(), 1);
+
+        // check that the rows have the values we expect
+        response = client.callProcedure("@AdHoc",
+        		"SELECT * FROM demo ORDER BY othernum ASC;");
+        assertEquals(response.getStatus(), ClientResponse.SUCCESS);
+        assertEquals(response.getResults().length, 1);
+        VoltTable results = response.getResults()[0];
+
+        assertEquals(results.getRowCount(), 2);
+
+        assertEquals(results.fetchRow(0).getLong("othernum"), 1);
+        assertEquals(results.fetchRow(1).getLong("othernum"), 5);
 
         volt.shutdown();
 	}
+
 }

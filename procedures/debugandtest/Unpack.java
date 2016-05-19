@@ -21,13 +21,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-//
-// Accepts a vote, enforcing business logic: make sure the vote is for a valid
-// contestant and that the voter (phone number of the caller) is not above the
-// number of allowed votes.
-//
-
 package debugandtest;
 
 import java.io.ByteArrayInputStream;
@@ -44,9 +37,9 @@ import com.google_voltpatches.common.base.Charsets;
 public class Unpack extends VoltProcedure {
 
 	final SQLStmt insertFull =
-			new SQLStmt("insert into demo values (?, ?);");
+			new SQLStmt("insert into demo values (?, ?, ?);");
 	final SQLStmt insertSubset =
-			new SQLStmt("insert into demo values (?, field(?, 'glossary.GlossDiv'));");
+			new SQLStmt("insert into demo values (?, ?, field(?, 'glossary.GlossDiv'));");
 
 	static public String gunzipBytes(byte[] value) throws IOException {
 		if (value == null) {
@@ -63,7 +56,7 @@ public class Unpack extends VoltProcedure {
 	    byte[] buffer = new byte[1024];
 	    int len;
 
-	    while((len = gzip.read(buffer)) != -1){
+	    while ((len = gzip.read(buffer)) != -1) {
             out.write(buffer, 0, len);
         }
 
@@ -83,8 +76,8 @@ public class Unpack extends VoltProcedure {
 			throw new VoltAbortException(e);
 		}
 
-    	voltQueueSQL(insertFull, EXPECT_SCALAR_MATCH(1), 1, jsonStr);
-    	voltQueueSQL(insertSubset, EXPECT_SCALAR_MATCH(1), 1, jsonStr);
+    	voltQueueSQL(insertFull, EXPECT_SCALAR_MATCH(1), 1, 1, jsonStr);
+    	voltQueueSQL(insertSubset, EXPECT_SCALAR_MATCH(1), 2, 2, jsonStr);
     	return voltExecuteSQL();
     }
 }

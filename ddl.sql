@@ -1,6 +1,7 @@
 CREATE TABLE demo
 (
   mynum       bigint        NOT NULL,
+  othernum    bigint        NOT NULL,
   myjson      varchar(5000) NOT NULL
 );
 PARTITION TABLE demo ON COLUMN mynum;
