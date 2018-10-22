@@ -1,5 +1,17 @@
 # Example Procedure Debugging and Testing Code
 
+This project was created to show an example of how to unit test and debug VoltDB stored procedures. When it was created, it had to rely on some utility classes to enable a minimal instance of VoltDB to run in the same process as the test class.
+
+This project includes both the utilites (VoltDBProcedureTestUtils.jar) and example tests.
+
+In 2017, the API from these utility classes was integrated into the VoltDB source code, and expanded instructions were written here: https://github.com/VoltDB/voltdb/blob/master/examples/HOWTOs/EclipseUnitTestDebug.md
+
+If you are using v7.2 or later, you can follow the instructions there, and you do not need anything from this app-debug-and-test repository.
+
+If you are using v7.1 or earlier, you shoudl still follow the instructions there. It will include cloning this project and building the VoltDBProcedureTestUtils.jar file, and adding that to Eclipse.
+
+Below are the original instructions:
+
 Goal is to walk through creating an Eclipse project here shortly.
 
 The long and short of it is to make a Java project with client and procedure directories as source folders.
